@@ -12,6 +12,7 @@ const index_1 = require("./routes/index");
 const books_store_1 = require("./books-store");
 const books_1 = require("./routes/books");
 const routes_1 = require("./graphql/routes");
+const fake_bearer_middleware_1 = require("./fake-bearer-middleware");
 var fs = require('fs');
 class Server {
     static bootstrap() {
@@ -68,6 +69,8 @@ class Server {
         index_1.IndexRoute.create(router);
         this.app.use('/book', booksRouter);
         this.app.use('/books', booksRouter);
+        this.app.use('/secure/book', fake_bearer_middleware_1.fakeBearerMiddleware, booksRouter);
+        this.app.use('/secure/books', fake_bearer_middleware_1.fakeBearerMiddleware, booksRouter);
         this.app.use('/graphql', graphQLRouter);
         this.app.use(router);
     }

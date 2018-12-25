@@ -5,7 +5,14 @@ const book_factory_1 = require("./model/book-factory");
 const some_books_1 = require("./model/some-books");
 class BooksStore {
     constructor() {
-        this.books = some_books_1.SomeBooks.get();
+        this.booksCache = some_books_1.SomeBooks.get();
+        this.isSecure = false;
+    }
+    get books() {
+        return this.isSecure ? [...this.booksCache, some_books_1.SomeBooks.secureBook] : this.booksCache;
+    }
+    setSecure(isSecure = false) {
+        this.isSecure = isSecure;
     }
     getAll() {
         return _(this.books)
@@ -47,7 +54,10 @@ class BooksStore {
         return !!this.getByIsbn(isbn);
     }
     create(book) {
-        this.books.push(book);
+        if (book.isbn === some_books_1.SomeBooks.secureBook.isbn) {
+            return;
+        }
+        this.booksCache.push(book);
     }
     ;
     update(book) {
@@ -57,11 +67,14 @@ class BooksStore {
     ;
     delete(isbn) {
         isbn = book_factory_1.BookFactory.normalizeIsbn(isbn);
-        return this.books = this.books.filter(book => book.isbn !== isbn);
+        if (isbn === some_books_1.SomeBooks.secureBook.isbn) {
+            return this.booksCache;
+        }
+        return this.booksCache = this.books.filter(book => book.isbn !== isbn);
     }
     ;
     reset() {
-        this.books = some_books_1.SomeBooks.get();
+        this.booksCache = some_books_1.SomeBooks.get();
     }
     ;
 }

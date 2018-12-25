@@ -24,17 +24,20 @@ class BooksRoute {
         router.delete('/:isbn', booksRoute.delete);
     }
     getAll(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         res.json(this.store.getAll());
         next();
     }
     ;
     getAllBySearch(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let searchTerm = req.params.search;
         res.json(this.store.getAllBySearch(searchTerm));
         next();
     }
     ;
     getByISBN(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let isbn = req.params.isbn;
         let book = this.store.getByIsbn(isbn);
         if (!book) {
@@ -45,6 +48,7 @@ class BooksRoute {
     }
     ;
     checkISBN(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let isbn = req.params.isbn;
         let bookExist = this.store.isbnExists(isbn);
         res.json(bookExist);
@@ -52,6 +56,7 @@ class BooksRoute {
     }
     ;
     create(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let bookJson = req.body;
         let isbn = bookJson.isbn;
         if (!isbn) {
@@ -67,6 +72,7 @@ class BooksRoute {
     }
     ;
     update(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let bookJson = req.body;
         let isbn = bookJson.isbn;
         if (!isbn) {
@@ -85,6 +91,7 @@ class BooksRoute {
     }
     ;
     delete(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let isbn = req.params.isbn;
         this.store.delete(isbn);
         res.send(200);
@@ -100,6 +107,7 @@ class BooksRoute {
     }
     ;
     rate(req, res, next) {
+        this.store.setSecure(res.locals.authorized);
         let isbn = req.params.isbn;
         let rating = req.body.rating;
         if (!rating && rating !== 0) {
