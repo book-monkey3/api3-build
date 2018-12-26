@@ -53,11 +53,7 @@ class Server {
         if (this.app.get('env') === 'development') {
             swaggerJson.schemes = 'http';
         }
-        this.app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerJson, {
-            requestInterceptor: function (request) {
-                window.alert(request);
-            }
-        }));
+        this.app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerJson, false));
     }
     routes() {
         const store = new books_store_1.BooksStore();

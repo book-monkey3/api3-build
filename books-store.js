@@ -67,10 +67,9 @@ class BooksStore {
     ;
     delete(isbn) {
         isbn = book_factory_1.BookFactory.normalizeIsbn(isbn);
-        if (isbn === some_books_1.SomeBooks.secureBook.isbn) {
-            return this.booksCache;
+        if (isbn !== some_books_1.SomeBooks.secureBook.isbn) {
+            this.booksCache = this.booksCache.filter(book => book.isbn !== isbn);
         }
-        return this.booksCache = this.books.filter(book => book.isbn !== isbn);
     }
     ;
     reset() {
