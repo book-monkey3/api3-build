@@ -4,7 +4,7 @@ const thumbnail_1 = require("./thumbnail");
 const book_1 = require("./book");
 class BookFactory {
     static empty() {
-        let defaultThumbnail = new thumbnail_1.Thumbnail('https://angular2buch.de/img/book.png', 'Kein Vorschaubild verfügbar');
+        let defaultThumbnail = new thumbnail_1.Thumbnail('https://api3.angular-buch.com/images/placeholder_book.svg', 'Kein Vorschaubild verfügbar');
         return new book_1.Book('', '', [''], new Date(), '', 3, [defaultThumbnail], '');
     }
     static fromJson(json) {
