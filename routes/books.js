@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
 const book_factory_1 = require("../model/book-factory");
 class BooksRoute {
-    constructor(store) {
+    constructor(store, notificationService) {
         this.store = store;
+        this.notificationService = notificationService;
     }
-    static create(router, bookStore) {
-        let booksRoute = new BooksRoute(bookStore);
-        let methodsToBind = [
+    static create(router, bookStore, notificationService) {
+        const booksRoute = new BooksRoute(bookStore, notificationService);
+        const methodsToBind = [
             'getAll', 'getAllBySearch', 'reset', 'create',
             'rate', 'getByISBN', 'checkISBN', 'update', 'delete'
         ];
@@ -31,15 +32,15 @@ class BooksRoute {
     ;
     getAllBySearch(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let searchTerm = req.params.search;
+        const searchTerm = req.params.search;
         res.json(this.store.getAllBySearch(searchTerm));
         next();
     }
     ;
     getByISBN(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let isbn = req.params.isbn;
-        let book = this.store.getByIsbn(isbn);
+        const isbn = req.params.isbn;
+        const book = this.store.getByIsbn(isbn);
         if (!book) {
             return res.status(404).send('Book does not exist');
         }
@@ -49,32 +50,42 @@ class BooksRoute {
     ;
     checkISBN(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let isbn = req.params.isbn;
-        let bookExist = this.store.isbnExists(isbn);
+        const isbn = req.params.isbn;
+        const bookExist = this.store.isbnExists(isbn);
         res.json(bookExist);
         next();
     }
     ;
     create(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let bookJson = req.body;
-        let isbn = bookJson.isbn;
+        const bookJson = req.body;
+        const isbn = bookJson.isbn;
         if (!isbn) {
             return res.status(400).send('Invalid data: ISBN number is mandatory');
         }
         if (this.store.isbnExists(isbn)) {
             return res.status(409).send('Book does already exist');
         }
-        let book = book_factory_1.BookFactory.fromJson(bookJson);
+        const book = book_factory_1.BookFactory.fromJson(bookJson);
         this.store.create(book);
-        res.send(201);
+        res.sendStatus(201);
+        if (this.notificationService.hasSubscriber()) {
+            const notificationPayload = {
+                title: `🆕📕 ${book.title}`,
+                body: `ISBN: ${book.isbn}`,
+                icon: book.thumbnails[0].url || book_factory_1.PLACEHOLDER_IMG.url,
+                vibrate: [100, 50, 100],
+                data: { url: `${req.headers.origin}/books/${book.isbn}` }
+            };
+            this.notificationService.notifySubscribers(notificationPayload);
+        }
         next();
     }
     ;
     update(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let bookJson = req.body;
-        let isbn = bookJson.isbn;
+        const bookJson = req.body;
+        const isbn = bookJson.isbn;
         if (!isbn) {
             return res.status(400).send('Invalid data: ISBN number is mandatory');
         }
@@ -84,7 +95,7 @@ class BooksRoute {
         if (!this.store.isbnExists(isbn)) {
             return res.status(404).send('Book does not exist');
         }
-        let book = book_factory_1.BookFactory.fromJson(bookJson);
+        const book = book_factory_1.BookFactory.fromJson(bookJson);
         this.store.update(book);
         res.send(200);
         next();
@@ -92,7 +103,7 @@ class BooksRoute {
     ;
     delete(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let isbn = req.params.isbn;
+        const isbn = req.params.isbn;
         this.store.delete(isbn);
         res.send(200);
         next();
@@ -108,12 +119,12 @@ class BooksRoute {
     ;
     rate(req, res, next) {
         this.store.setSecure(res.locals.authorized);
-        let isbn = req.params.isbn;
-        let rating = req.body.rating;
+        const isbn = req.params.isbn;
+        const rating = req.body.rating;
         if (!rating && rating !== 0) {
             return res.status(400).send('Invalid data: rating is mandatory');
         }
-        let book = this.store.getByIsbn(isbn);
+        const book = this.store.getByIsbn(isbn);
         if (!book) {
             return res.status(404).send('Book does not exist');
         }
