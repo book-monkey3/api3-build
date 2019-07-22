@@ -23,7 +23,7 @@ class BooksStore {
     ;
     getAllBySearch(searchTerm) {
         searchTerm = searchTerm.toLowerCase();
-        const containsSearchTerm = (checked) => ~checked.toLowerCase().indexOf(searchTerm);
+        let containsSearchTerm = (checked) => ~checked.toLowerCase().indexOf(searchTerm);
         return _(this.books)
             .filter(b => !!(containsSearchTerm(b.isbn) ||
             containsSearchTerm(b.title) ||

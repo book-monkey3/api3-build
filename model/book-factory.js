@@ -2,13 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const thumbnail_1 = require("./thumbnail");
 const book_1 = require("./book");
-exports.PLACEHOLDER_IMG = {
-    url: 'https://api3.angular-buch.com/images/placeholder_book.svg',
-    title: 'Kein Vorschaubild verfügbar'
-};
 class BookFactory {
     static empty() {
-        const defaultThumbnail = new thumbnail_1.Thumbnail(exports.PLACEHOLDER_IMG.url, exports.PLACEHOLDER_IMG.title);
+        let defaultThumbnail = new thumbnail_1.Thumbnail('https://api3.angular-buch.com/images/placeholder_book.svg', 'Kein Vorschaubild verfügbar');
         return new book_1.Book('', '', [''], new Date(), '', 3, [defaultThumbnail], '');
     }
     static fromJson(json) {

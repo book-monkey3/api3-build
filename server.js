@@ -11,10 +11,8 @@ const methodOverride = require("method-override");
 const index_1 = require("./routes/index");
 const books_store_1 = require("./books-store");
 const books_1 = require("./routes/books");
-const notifications_1 = require("./routes/notifications");
 const routes_1 = require("./graphql/routes");
 const fake_bearer_middleware_1 = require("./fake-bearer-middleware");
-const notification_service_1 = require("./notification-service");
 var fs = require('fs');
 class Server {
     static bootstrap() {
@@ -55,32 +53,21 @@ class Server {
         if (this.app.get('env') === 'development') {
             swaggerJson.schemes = 'http';
         }
-        const options = {
-            explorer: false,
-            customCss: `.swagger-ui .information-container {
-        background: url(/images/monkey-thinking.svg) no-repeat scroll right top;
-        background-size: contain;
-      }`
-        };
-        this.app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerJson, options));
+        this.app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerJson, false));
     }
     routes() {
         const store = new books_store_1.BooksStore();
-        const notificationService = new notification_service_1.NotificationService();
-        const booksRouter = express.Router();
-        books_1.BooksRoute.create(booksRouter, store, notificationService);
-        const graphQLRouter = express.Router();
+        let booksRouter = express.Router();
+        books_1.BooksRoute.create(booksRouter, store);
+        let graphQLRouter = express.Router();
         routes_1.GraphQLRoute.create(graphQLRouter, store);
-        const notificationsRouter = express.Router();
-        notifications_1.NotificationsRoute.create(notificationsRouter, notificationService);
-        const router = express.Router();
+        let router = express.Router();
         index_1.IndexRoute.create(router);
         this.app.use('/book', booksRouter);
         this.app.use('/books', booksRouter);
         this.app.use('/secure/book', fake_bearer_middleware_1.fakeBearerMiddleware, booksRouter);
         this.app.use('/secure/books', fake_bearer_middleware_1.fakeBearerMiddleware, booksRouter);
         this.app.use('/graphql', graphQLRouter);
-        this.app.use('/notifications', notificationsRouter);
         this.app.use(router);
     }
 }
